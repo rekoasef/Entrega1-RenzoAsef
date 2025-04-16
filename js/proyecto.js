@@ -1,3 +1,4 @@
+
 const maquinaria = [
     { tipo: "Sembradora", modelo: "Gringa", precioBase: 10000000 },
     { tipo: "Sembradora", modelo: "Pionera", precioBase: 8500000 },
@@ -10,29 +11,98 @@ const adicionales = [
     { nombre: "Kit de siembra variable", precio: 700000 }
 ];
 
-function elegirMaquina(){
-    let eleccion = parseInt(prompt(`Ingrese el numero de la maquina que desee:\n
-        1. Gringa
-        2. Pionera
-        3. Drilor`))
-    return maquinaria[eleccion - 1];
+let carrito = [];
+
+function mostrarCatalogo(array) {
+    let catalogo = "Catálogo de Maquinaria:\n";
+    for (let i = 0; i < array.length; i++) {
+        catalogo += `${i + 1}. Modelo: ${array[i].modelo} - Precio Base: $${array[i].precioBase}\n`;
+    }
+    alert(catalogo);
 }
 
-function agregarAdicionales() {
+function elegirMaquina(array) {
+    let eleccion = parseInt(prompt(`¿Qué máquina querés agregar al carrito? (Ingresá el número)`));
+    if (eleccion >= 1 && eleccion <= array.length) {
+        return array[eleccion - 1];
+    } else {
+        alert("Opción inválida");
+        return null;
+    }
+}
+
+function agregarAdicionales(array) {
     let totalAdicionales = 0;
-    adicionales.forEach(adicional => {
-        let agregar = confirm(`¿Deseás agregar ${adicional.nombre} por $${adicional.precio}?`);
-        if (agregar) {
-            totalAdicionales += adicional.precio;
-        }
-    });
-    return totalAdicionales;
-}  
+    let adicionalesElegidos = [];
 
-function cotizar(){
-    let maquinaSeleccionada = elegirMaquina()
-    let adicionalSeleccionado = agregarAdicionales()
-    let precioFinal = maquinaSeleccionada.precioBase + adicionalSeleccionado 
-    alert(`El precio de la Maquina ${maquinaSeleccionada.tipo} final es de $${precioFinal}`)
+    for (let i = 0; i < array.length; i++) {
+        let agregar = confirm(`¿Deseás agregar ${array[i].nombre} por $${array[i].precio}?`);
+        if (agregar) {
+            totalAdicionales += array[i].precio;
+            adicionalesElegidos.push(array[i].nombre);
+        }
+    }
+
+    return { totalAdicionales, adicionalesElegidos };
 }
-cotizar()
+
+function verCarrito(carrito) {
+    if (carrito.length === 0) {
+        alert("Tu carrito está vacío.");
+    } else {
+        let resumen = "Carrito actual:\n";
+        for (let i = 0; i < carrito.length; i++) {
+            resumen += `${i + 1}. Modelo: ${carrito[i].modelo}, Precio Final: $${carrito[i].precioFinal}\n`;
+            if (carrito[i].adicionales.length > 0) {
+                resumen += `   Adicionales: ${carrito[i].adicionales.join(", ")}\n`;
+            }
+        }
+        alert(resumen);
+    }
+}
+
+function simulador() {
+    let salir = false;
+
+    while (!salir) {
+        let opcion = prompt(
+            "Bienvenido al cotizador de maquinaria\n\nElegí una opción:\n1. Ver catálogo\n2. Agregar una máquina\n3. Ver carrito\n4. Salir"
+        );
+
+        switch (opcion) {
+            case "1":
+                mostrarCatalogo(maquinaria);
+                break;
+            case "2":
+                mostrarCatalogo(maquinaria);
+                let maquina = elegirMaquina(maquinaria);
+                if (maquina) {
+                    let adicionalesData = agregarAdicionales(adicionales);
+                    let precioFinal = maquina.precioBase + adicionalesData.totalAdicionales;
+
+                    carrito.push({
+                        tipo: maquina.tipo,
+                        modelo: maquina.modelo,
+                        precioBase: maquina.precioBase,
+                        precioFinal: precioFinal,
+                        adicionales: adicionalesData.adicionalesElegidos
+                    });
+                    
+
+                    alert(`Máquina ${maquina.modelo} agregada al carrito con precio final de $${precioFinal}`);
+                }
+                break;
+            case "3":
+                verCarrito(carrito);
+                break;
+            case "4":
+                salir = true;
+                alert("Gracias por usar el simulador. ¡Hasta luego!");
+                break;
+            default:
+                alert("Opción inválida. Intentá de nuevo.");
+        }
+    }
+}
+
+simulador();
